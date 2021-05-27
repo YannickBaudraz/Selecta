@@ -43,6 +43,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Article.cs" />
+    <Compile Include="FakeDateTime.cs" />
+    <Compile Include="Purchase.cs" />
+    <Compile Include="StatsLine.cs" />
     <Compile Include="VendingMachine.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Selecta_Model
 {
@@ -8,6 +9,14 @@ namespace Selecta_Model
     /// </summary>
     public class VendingMachine
     {
+        #region Fields
+
+        private readonly List<Article> _articles;
+
+        private readonly List<Purchase> _purchases;
+
+        #endregion
+
         #region Constructors
 
         /// <summary>
@@ -17,11 +26,12 @@ namespace Selecta_Model
         public VendingMachine(List<Article> articles)
         {
             _articles = articles;
+            _purchases = new List<Purchase>();
             Balance = 0;
         }
 
         #endregion
-
+        
         #region Properties
 
         /// <summary>
@@ -33,8 +43,6 @@ namespace Selecta_Model
         ///     The total of amount collected by the machine.
         /// </summary>
         public double Balance { get; private set; }
-
-        private readonly List<Article> _articles;
 
         #endregion
 
@@ -74,6 +82,8 @@ namespace Selecta_Model
                     Change -= articleChose.Price;
                     Balance += articleChose.Price;
                     articleChose.Quantity--;
+                    var purchase = new Purchase(articleChose.Price);
+                    _purchases.Add(purchase);
                     message = $"Vending {articleChose.Name}";
                 }
             }
@@ -83,6 +93,23 @@ namespace Selecta_Model
             }
 
             return message;
+        }
+
+        /// <summary>
+        ///     Get 3 best hours by sales.
+        /// </summary>
+        /// <returns>An array with the 3 best hours.</returns>
+        public IEnumerable<StatsLine> GetBestHoursBySales()
+        {
+            return _purchases
+                .GroupBy(purchase => purchase.DateTime.Hour)
+                .Select(grouping => new StatsLine(
+                    grouping.First().DateTime.Hour,
+                    grouping.Sum(purchase => purchase.Amount)
+                ))
+                .OrderByDescending(statsLine => statsLine.TotalAmount)
+                .Take(3)
+                .ToList();
         }
 
         #endregion

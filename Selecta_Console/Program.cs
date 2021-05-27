@@ -15,6 +15,7 @@ namespace Selecta_Console
             Assert5();
             Assert6();
             Assert7();
+            AssertExtension();
             Console.Write("Press on a key...");
             Console.ReadKey();
         }
@@ -126,6 +127,60 @@ namespace Selecta_Console
                 new Article("Avril", "A03", 2, 2.10),
                 new Article("KokoKola", "A04", 1, 2.95)
             });
+        }
+
+        private static void AssertExtension()
+        {
+            Console.WriteLine("Extension assertion");
+            var vendingMachine = new VendingMachine(new List<Article>
+            {
+                new Article("Smarlies", "A01", 100, 1.60),
+                new Article("Carampar", "A02", 50, 0.60),
+                new Article("Avril", "A03", 20, 2.10),
+                new Article("KokoKola", "A04", 10, 2.95)
+            });
+            vendingMachine.Insert(1000.00);
+
+#if DEBUG
+            SetTime("2020-01-01T20:30:00");
+            vendingMachine.Choose("A01");
+
+            SetTime("2020-03-01T23:30:00");
+            vendingMachine.Choose("A01");
+
+            SetTime("2020-03-04T09:22:00");
+            vendingMachine.Choose("A01");
+
+            SetTime("2020-04-01T23:00:00");
+            vendingMachine.Choose("A01");
+
+            SetTime("2020-04-01T23:59:59");
+            vendingMachine.Choose("A01");
+
+            SetTime("2020-04-04T09:12:00");
+            vendingMachine.Choose("A01");
+
+            // Add this to have 4 different hours and be sure to only take 3.
+            SetTime("2020-04-04T07:12:00");
+            vendingMachine.Choose("A02");
+#else
+            vendingMachine.Choose("A01");
+            vendingMachine.Choose("A01");
+            vendingMachine.Choose("A01");
+            vendingMachine.Choose("A01");
+            vendingMachine.Choose("A01");
+            vendingMachine.Choose("A01");
+#endif
+
+            foreach (StatsLine statsLine in vendingMachine.GetBestHoursBySales())
+                Console.WriteLine("Hour {0} generated a revenue of {1:C}", statsLine.Hour, statsLine.TotalAmount);
+
+            Console.WriteLine();
+        }
+
+        private static void SetTime(string timeString)
+        {
+            FakeTime.Current = DateTime.Parse(timeString);
         }
     }
 }
